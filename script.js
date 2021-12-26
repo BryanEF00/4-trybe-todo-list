@@ -6,6 +6,9 @@ const removeCompletedBtn = document.getElementById('remover-finalizados');
 const allTask = document.getElementsByTagName('li');
 const completedTask = document.getElementsByClassName('completed');
 const saveTaskBtn = document.getElementById('salvar-tarefas');
+const upBtn = document.getElementById('mover-cima');
+const downBtn = document.getElementById('mover-baixo');
+const removeSelectedBtn = document.getElementById('remover-selecionado');
 
 addBtn.addEventListener('click', criarTarefa);
 
@@ -66,6 +69,100 @@ function saveTask() {
   }
 }
 
+function moveDown() {
+  for (let i = allTask.length - 1; i >= 0; i -= 1) {
+    if (allTask[i].style.backgroundColor === 'gray') {
+      if (allTask[i].nextElementSibling !== null) {
+        /* parte 1 */
+        let selectedToMove = [];
+        let selectedText = allTask[i].innerText;
+        selectedToMove.push(selectedText);
+        let selectedClass = allTask[i].className;
+        selectedToMove.push(selectedClass);
+
+        allTask[i].style.backgroundColor = 'white';
+        if (allTask[i].classList.contains('completed')) {
+          allTask[i].classList.remove('completed');
+        }
+
+        /* parte 2 */
+        let moved = [];
+        let movedText = allTask[i].nextElementSibling.innerText;
+        moved.push(movedText);
+        let movedClass = allTask[i].nextElementSibling.className;
+        moved.push(movedClass);
+
+        allTask[i].nextElementSibling.style.backgroundColor = 'gray';
+
+        /* parte 3 */
+        allTask[i].innerText = movedText;
+        if (movedClass !== '') {
+          allTask[i].classList.add(movedClass);
+        }
+
+        allTask[i].nextElementSibling.innerText = selectedText;
+        if (selectedClass !== '') {
+          allTask[i].nextElementSibling.classList.add(selectedClass);
+        }
+      }
+    }
+  }
+}
+
+downBtn.addEventListener('click', moveDown);
+
+function moveUp() {
+  for (let i = 0; i < allTask.length; i += 1) {
+    if (allTask[i].style.backgroundColor === 'gray') {
+      if (allTask[i].previousElementSibling !== null) {
+        /* parte 1 */
+        let selectedToMove = [];
+        let selectedText = allTask[i].innerText;
+        selectedToMove.push(selectedText);
+        let selectedClass = allTask[i].className;
+        selectedToMove.push(selectedClass);
+
+        allTask[i].style.backgroundColor = 'white';
+        if (allTask[i].classList.contains('completed')) {
+          allTask[i].classList.remove('completed');
+        }
+
+        /* parte 2 */
+        let moved = [];
+        let movedText = allTask[i].previousElementSibling.innerText;
+        moved.push(movedText);
+        let movedClass = allTask[i].previousElementSibling.className;
+        moved.push(movedClass);
+
+        allTask[i].previousElementSibling.style.backgroundColor = 'gray';
+
+        /* parte 3 */
+        allTask[i].innerText = movedText;
+        if (movedClass !== '') {
+          allTask[i].classList.add(movedClass);
+        }
+
+        allTask[i].previousElementSibling.innerText = selectedText;
+        if (selectedClass !== '') {
+          allTask[i].previousElementSibling.classList.add(selectedClass);
+        }
+      }
+    }
+  }
+}
+
+upBtn.addEventListener('click', moveUp);
+
+function removeSelected() {
+  for (let i = 0; i < allTask.length; i += 1) {
+    if (allTask[i].style.backgroundColor === 'gray') {
+      allTask[i].remove();
+    }
+  }
+}
+
+removeSelectedBtn.addEventListener('click', removeSelected);
+
 window.onload = function () {
   localStorage.removeItem('randid');
 
@@ -80,7 +177,6 @@ window.onload = function () {
     savedTask.innerText = loadedText;
 
     if (loadedClass !== '') {
-      let loadedClass = loadedArray[1];
       savedTask.classList.add(loadedClass);
     }
 

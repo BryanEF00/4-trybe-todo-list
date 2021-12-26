@@ -1,62 +1,92 @@
-/* Criar li */
+const input = document.getElementById('texto-tarefa');
+const addBtn = document.getElementById('criar-tarefa');
+const taskList = document.getElementById('lista-tarefas');
+const removeAllBtn = document.getElementById('apaga-tudo');
+const removeCompletedBtn = document.getElementById('remover-finalizados');
+const allTask = document.getElementsByTagName('li');
+const completedTask = document.getElementsByClassName('completed');
+const saveTaskBtn = document.getElementById('salvar-tarefas');
 
-let tarefa = document.querySelector('#texto-tarefa');
-let btnCriaTarefa = document.querySelector('#criar-tarefa');
-let listaTarefa = document.querySelector('#lista-tarefas');
+addBtn.addEventListener('click', criarTarefa);
 
-function criaTarefa() {
-  let li = document.createElement('li');
-  li.innerText = tarefa.value;
-  listaTarefa.appendChild(li);
-  tarefa.value = '';
+function criarTarefa() {
+  let task = document.createElement('li');
+  task.innerText = input.value;
+  taskList.appendChild(task);
+  input.value = '';
 
-  li.addEventListener('click', mudarBackground);
-  li.addEventListener('dblclick', tarefaCompleta);
+  task.addEventListener('click', changeBackground);
+  task.addEventListener('dblclick', taskCompleted);
 }
 
-btnCriaTarefa.addEventListener('click', criaTarefa);
-
-/* Colorir Background */
-
-function mudarBackground(event) {
-  let liSelected = event.target;
-  if (document.querySelector('.selected')) {
-    document.querySelector('.selected').classList.remove('selected');
+function changeBackground(event) {
+  let selected = event.target;
+  for (let i = 0; i < taskList.children.length; i += 1) {
+    taskList.children[i].style.backgroundColor = 'white';
   }
-  liSelected.classList.add('selected');
+  selected.style.backgroundColor = 'gray';
 }
 
-/* Tarefa Completa */
-
-function tarefaCompleta(event) {
-  let liSelected = event.target;
-  liSelected.classList.toggle('completed');
+function taskCompleted(event) {
+  let completed = event.target;
+  completed.classList.toggle('completed');
 }
 
-/* Botão Apaga Tarefas */
+removeAllBtn.addEventListener('click', removeAll);
 
-let btnApagaTudo = document.querySelector('#apaga-tudo');
-
-btnApagaTudo.addEventListener('click', apagaLista);
-
-function apagaLista() {
-  let itensLista = listaTarefa.children;
-  let listaSize = itensLista.length;
-  for (let i = 0; i < listaSize; i += 1) {
-    document.getElementsByTagName('li')[0].remove();
+function removeAll() {
+  for (let i = allTask.length - 1; i >= 0; i -= 1) {
+    allTask[0].remove();
   }
 }
 
-/* Botão Apaga Tarefas */
+removeCompletedBtn.addEventListener('click', removeCompleted);
 
-let btnApagaCompletos = document.querySelector('#remover-finalizados');
-
-btnApagaCompletos.addEventListener('click', apagaCompletos);
-
-function apagaCompletos() {
-  let itensCompletos = document.getElementsByClassName('completed');
-  let completosSize = itensCompletos.length;
-  for (let i = 0; i < completosSize; i += 1) {
-    itensCompletos[0].remove();
+function removeCompleted() {
+  for (let i = completedTask.length - 1; i >= 0; i -= 1) {
+    completedTask[0].remove();
   }
 }
+
+saveTaskBtn.addEventListener('click', saveTask);
+
+function saveTask() {
+  localStorage.clear();
+
+  for (let i = allTask.length - 1; i >= 0; i -= 1) {
+    let savedArray = [];
+
+    let itemText = taskList.children[i].innerHTML;
+    savedArray.push(itemText);
+
+    let itemClass = taskList.children[i].className;
+    savedArray.push(itemClass);
+
+    localStorage.setItem('item: ' + [i], JSON.stringify(savedArray));
+  }
+}
+
+window.onload = function () {
+  localStorage.removeItem('randid');
+
+  for (let i = 0; i < localStorage.length; i += 1) {
+    let savedTask = document.createElement('li');
+
+    let loadedTask = localStorage.getItem('item: ' + [i]);
+    let loadedArray = JSON.parse(loadedTask);
+    let loadedText = loadedArray[0];
+    let loadedClass = loadedArray[1];
+
+    savedTask.innerText = loadedText;
+
+    if (loadedClass !== '') {
+      let loadedClass = loadedArray[1];
+      savedTask.classList.add(loadedClass);
+    }
+
+    taskList.appendChild(savedTask);
+
+    savedTask.addEventListener('click', changeBackground);
+    savedTask.addEventListener('dblclick', taskCompleted);
+  }
+};
